@@ -88,6 +88,6 @@ int main(int argc, char *argv[])
     double checkArr[size+2];
     bins(size, test, minimum, maximum,size,checkArr);
 
-    printf("TESTSSSS = %f",checkArr[size+1]);
+    printf("TEST= %f",checkArr[size+1]);
     return 0;
 }
