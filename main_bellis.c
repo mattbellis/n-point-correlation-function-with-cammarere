@@ -1,5 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<math.h>
+
 
 // The user may want to change this 
 // This defines the number of bins in the histogram
@@ -16,6 +18,7 @@ int binning1d(float vals[], int num_vals_to_bin, float lo, float hi, int nbins, 
     float v;
     for (int i=0;i<num_vals_to_bin;i++) {
         v = vals[i];
+        //v = sin(log(pow(1000,v)));
         bin = -1;
         if (v<lo) {
             bin=-1;
@@ -53,7 +56,7 @@ int main(int argc, char *argv[]) {
     float binwidth = (hi-lo)/nbins;
     // This means we'll send this many values to the function
     // to be histogrammed
-    int histogram_chunks = 16; 
+    int histogram_chunks = 1024*1024; 
 
     printf("Filling a histogram with\n");
     printf("Range: %f-%f\n",lo,hi);
