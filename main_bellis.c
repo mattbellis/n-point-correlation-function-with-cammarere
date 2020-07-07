@@ -18,7 +18,7 @@ int binning1d(float vals[], int num_vals_to_bin, float lo, float hi, int nbins, 
     float v;
     for (int i=0;i<num_vals_to_bin;i++) {
         v = vals[i];
-        //v = sin(log(pow(1000,v)));
+        v = sin(log(pow(1000,v)));
         bin = -1;
         if (v<lo) {
             bin=-1;
@@ -65,8 +65,11 @@ int main(int argc, char *argv[]) {
     printf("We will histogram in chunks of: %d\n",histogram_chunks);
 
     // These will be the values we're histogramming
-    float *values_to_be_histogrammed = (float*) malloc(nvals * sizeof(float));
-    unsigned long *bin_indices = (unsigned long*) malloc(nvals * sizeof(unsigned long));
+    // I think this is wrong and tries to allocate too much memory
+    //float *values_to_be_histogrammed = (float*) malloc(nvals * sizeof(float));
+    //unsigned long *bin_indices = (unsigned long*) malloc(nvals * sizeof(unsigned long));
+    float *values_to_be_histogrammed = (float*) malloc(histogram_chunks * sizeof(float));
+    unsigned long *bin_indices = (unsigned long*) malloc(histogram_chunks * sizeof(unsigned long));
 
     int i = 0; 
 
