@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     for(unsigned long count=0;count<nvals;count++)
     {
         if (count%1000000==0){
-            printf("count: %d\n",count);
+            printf("count: %lu\n",count);
         }
 
         // Fill the array of values that we will histogram
@@ -128,10 +128,10 @@ int main(int argc, char *argv[]) {
     printf("Printing out the histogram entries\n");
     unsigned long total = 0;
     for (i = 0; i <  imax; i++)  {
-        printf("%d %d\n",i, hist[i]);
+        printf("%d %lu\n",i, hist[i]);
         total += hist[i];
     }
-    printf("Total entries: %d\n",total);
+    printf("Total entries: %lu\n",total);
 
     return 0;
 }
