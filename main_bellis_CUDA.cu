@@ -35,12 +35,12 @@ __global__ void binning1d(float *vals, int num_vals_to_bin, float lo, float hi, 
 		}   
 		//printf("value: %f\t",v);
 		//printf("bin: %d\n",bin);
-		bin = idx; // for DEBUGGING
+		//bin = idx; // for DEBUGGING
 		bin_indices[idx] = bin;
 		//bin_indices[i] = 5;
 	}
 
-	bin_indices[4] = 5;
+	//bin_indices[4] = 5;
 
 	// bin_indices is a pointer so the values in it will 
 	// still be accessible outside of the function.
@@ -64,7 +64,9 @@ int main(int argc, char *argv[]) {
 	float binwidth = (hi-lo)/nbins;
 	// This means we'll send this many values to the function
 	// to be histogrammed
-	int histogram_chunks = 16*16; 
+	//int histogram_chunks = 16*16; 
+	int histogram_chunks = 256*256; 
+	//int histogram_chunks = 1024*1024; 
 
 	printf("Filling a histogram with\n");
 	printf("Range: %f-%f\n",lo,hi);
@@ -114,7 +116,7 @@ int main(int argc, char *argv[]) {
 		values_to_be_histogrammed[count_for_histogramming] = rand()/FLOAT_RAND_MAX;
 
 		// DEBUG PRINT
-		printf("This point: %lu %f\n",count,values_to_be_histogrammed[count_for_histogramming]);
+		//printf("This point: %lu %f\n",count,values_to_be_histogrammed[count_for_histogramming]);
 
 		// Keep track of this by hand
 		count_for_histogramming++;
@@ -129,13 +131,13 @@ int main(int argc, char *argv[]) {
 
 			printf("histogram_chunks: %d\n",histogram_chunks);
 			printf("count_for_histogramming: %d\n",count_for_histogramming);
-			binning1d<<<16,16>>>(d_values_to_be_histogrammed, count_for_histogramming, lo, hi, nbins, binwidth, d_bin_indices);
+			binning1d<<<256,256>>>(d_values_to_be_histogrammed, count_for_histogramming, lo, hi, nbins, binwidth, d_bin_indices);
 
 			cudaMemcpy(bin_indices, d_bin_indices, sizeof(int) * histogram_chunks, cudaMemcpyDeviceToHost);
 
 			for (int j=0;j<count_for_histogramming;j++) {
 				// DEBUG PRINT
-				printf("Summing: %d %d\n",j,bin_indices[j]);
+				//printf("Summing: %d %d\n",j,bin_indices[j]);
 				if (bin_indices[j]>=0 && bin_indices[j]<nbins)
 					hist[bin_indices[j]]++;
 			}
