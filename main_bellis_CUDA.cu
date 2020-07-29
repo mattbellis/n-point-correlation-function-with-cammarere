@@ -149,6 +149,7 @@ int main(int argc, char *argv[]) {
 
 	int count_for_histogramming = 0;
 
+	int ichunk = 0;
 	for(unsigned long count=0;count<nvals;count++)
 	{
 		if (count%1000000==0){
@@ -156,7 +157,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		// Fill the array of values that we will histogram
-		values_to_be_histogrammed[count_for_histogramming] = rand()/FLOAT_RAND_MAX;
+		//if (ichunk==0) 
+			values_to_be_histogrammed[count_for_histogramming] = rand()/FLOAT_RAND_MAX;
+		// A lot of time is spent generating random numbers.
 
 		// DEBUG PRINT
 		//printf("This point: %lu %f\n",count,values_to_be_histogrammed[count_for_histogramming]);
@@ -173,7 +176,10 @@ int main(int argc, char *argv[]) {
 			if (GPU_FLAG) {
 				// Copy over
 				//printf("Using the GPU!\n");
-				cudaMemcpy(d_values_to_be_histogrammed, values_to_be_histogrammed, sizeof(float) * histogram_chunks, cudaMemcpyHostToDevice);
+				//if (ichunk==0) {
+					cudaMemcpy(d_values_to_be_histogrammed, values_to_be_histogrammed, sizeof(float) * histogram_chunks, cudaMemcpyHostToDevice);
+				//	printf("Copied!\n");
+				//}
 
 				binning1d<<<1024,1024>>>(d_values_to_be_histogrammed, count_for_histogramming, lo, hi, nbins, binwidth, d_bin_indices);
 
@@ -191,6 +197,7 @@ int main(int argc, char *argv[]) {
 			}
 			// Reset the counter
 			count_for_histogramming = 0;
+			ichunk++;
 		}
 	}
 
