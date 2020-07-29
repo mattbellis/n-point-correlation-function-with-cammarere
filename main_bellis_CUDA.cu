@@ -9,6 +9,40 @@
 #define FLOAT_RAND_MAX (float)RAND_MAX
 
 /////////////////////////////////////////////////////////////
+void binning1d_CPU(float *vals, int num_vals_to_bin, float lo, float hi, int nbins, float binwidth, int *bin_indices) {
+
+	int bin = -1;
+	float v;
+
+	// The user has to make sure that filled_bins has enough memory allocated
+	// for nbins integers
+
+	for (int idx = 0; idx<num_vals_to_bin; idx++ ) {
+
+		v = vals[idx];
+		v = sin(log(pow(1000,v)));
+		v = sin(log(pow(1000,v)));
+		v = sin(log(pow(1000,v)));
+		v = sin(log(pow(1000,v)));
+		bin = -1;
+		if (v<lo) {
+			bin=-1;
+		}
+		else if (v>hi) {
+			bin = -999;
+		}
+		else {
+			bin = (int)((v-lo)/binwidth);
+		}   
+		//bin = idx; // for DEBUGGING
+		bin_indices[idx] = bin;
+	}
+
+	// bin_indices is a pointer so the values in it will 
+	// still be accessible outside of the function.
+
+}
+
 __global__ void binning1d(float *vals, int num_vals_to_bin, float lo, float hi, int nbins, float binwidth, int *bin_indices) {
 
 	int bin = -1;
@@ -22,7 +56,10 @@ __global__ void binning1d(float *vals, int num_vals_to_bin, float lo, float hi, 
 	if (idx<num_vals_to_bin) {
 
 		v = vals[idx];
-		//v = sin(log(pow(1000,v)));
+		v = sin(log(pow(1000,v)));
+		v = sin(log(pow(1000,v)));
+		v = sin(log(pow(1000,v)));
+		v = sin(log(pow(1000,v)));
 		bin = -1;
 		if (v<lo) {
 			bin=-1;
@@ -33,14 +70,9 @@ __global__ void binning1d(float *vals, int num_vals_to_bin, float lo, float hi, 
 		else {
 			bin = (int)((v-lo)/binwidth);
 		}   
-		//printf("value: %f\t",v);
-		//printf("bin: %d\n",bin);
 		//bin = idx; // for DEBUGGING
 		bin_indices[idx] = bin;
-		//bin_indices[i] = 5;
 	}
-
-	//bin_indices[4] = 5;
 
 	// bin_indices is a pointer so the values in it will 
 	// still be accessible outside of the function.
@@ -53,7 +85,17 @@ int main(int argc, char *argv[]) {
 	// How many random values do we want to process? 
 	// This can be set on the command line or you can just
 	// edit it and recompile each time
-	unsigned long nvals = atoll(argv[1]);
+	bool GPU_FLAG = false;
+	char* CPU_OR_GPU = argv[1];
+	if (strcmp(CPU_OR_GPU,"gpu")==0) {
+		GPU_FLAG = true;
+	}
+	else if (strcmp(CPU_OR_GPU,"cpu")!=0 && strcmp(CPU_OR_GPU,"gpu")!=0) {
+		printf("First argument must be 'gpu' or 'cpu'!\n");
+		exit(-1);
+	}
+
+	unsigned long nvals = atoll(argv[2]);
 	printf("nvals: %lu\n",nvals);
 
 
@@ -65,7 +107,8 @@ int main(int argc, char *argv[]) {
 	// This means we'll send this many values to the function
 	// to be histogrammed
 	//int histogram_chunks = 16*16; 
-	int histogram_chunks = 256*256; 
+	//int histogram_chunks = 256*256; 
+	int histogram_chunks = 1024*1024; 
 	//int histogram_chunks = 1024*1024; 
 
 	printf("Filling a histogram with\n");
@@ -123,17 +166,22 @@ int main(int argc, char *argv[]) {
 
 		// When we have enough, go histogram them!
 		if (count_for_histogramming==histogram_chunks || count==nvals-1) {
-			printf("Histogramming a chunk of values!\n");
+			//printf("Histogramming a chunk of values!\n");
+			//printf("histogram_chunks: %d\n",histogram_chunks);
+			//printf("count_for_histogramming: %d\n",count_for_histogramming);
 
-			// Copy over
-			cudaMemcpy(d_values_to_be_histogrammed, values_to_be_histogrammed, sizeof(float) * histogram_chunks, cudaMemcpyHostToDevice);
+			if (GPU_FLAG) {
+				// Copy over
+				//printf("Using the GPU!\n");
+				cudaMemcpy(d_values_to_be_histogrammed, values_to_be_histogrammed, sizeof(float) * histogram_chunks, cudaMemcpyHostToDevice);
 
+				binning1d<<<1024,1024>>>(d_values_to_be_histogrammed, count_for_histogramming, lo, hi, nbins, binwidth, d_bin_indices);
 
-			printf("histogram_chunks: %d\n",histogram_chunks);
-			printf("count_for_histogramming: %d\n",count_for_histogramming);
-			binning1d<<<256,256>>>(d_values_to_be_histogrammed, count_for_histogramming, lo, hi, nbins, binwidth, d_bin_indices);
-
-			cudaMemcpy(bin_indices, d_bin_indices, sizeof(int) * histogram_chunks, cudaMemcpyDeviceToHost);
+				cudaMemcpy(bin_indices, d_bin_indices, sizeof(int) * histogram_chunks, cudaMemcpyDeviceToHost);
+			}
+			else {
+				binning1d_CPU(values_to_be_histogrammed, count_for_histogramming, lo, hi, nbins, binwidth, bin_indices);
+			}
 
 			for (int j=0;j<count_for_histogramming;j++) {
 				// DEBUG PRINT
