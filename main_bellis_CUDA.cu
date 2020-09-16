@@ -5,7 +5,7 @@
 
 // The user may want to change this 
 // This defines the number of bins in the histogram
-#define imax 16
+#define imax 128
 #define FLOAT_RAND_MAX (float)RAND_MAX
 
 /////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 	// to be histogrammed
 	//int histogram_chunks = 16*16; 
 	//int histogram_chunks = 256*256; 
-	int histogram_chunks = 1024*1024; 
+	int histogram_chunks = 512*512; 
 	//int histogram_chunks = 1024*1024; 
 
 	printf("Filling a histogram with\n");
@@ -152,9 +152,9 @@ int main(int argc, char *argv[]) {
 	int ichunk = 0;
 	for(unsigned long count=0;count<nvals;count++)
 	{
-		if (count%1000000==0){
-			printf("count: %lu\n",count);
-		}
+		//if (count%10000000==0){
+			//printf("count: %lu\n",count);
+		//}
 
 		// Fill the array of values that we will histogram
 		//if (ichunk==0) 
