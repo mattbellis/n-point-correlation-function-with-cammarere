@@ -5,7 +5,8 @@
 
 // The user may want to change this 
 // This defines the number of bins in the histogram
-#define imax 128
+//#define imax 128
+#define imax 16
 #define FLOAT_RAND_MAX (float)RAND_MAX
 
 /////////////////////////////////////////////////////////////
@@ -24,6 +25,8 @@ void binning1d_CPU(float *vals, int num_vals_to_bin, float lo, float hi, int nbi
 		v = sin(log(pow(1000,v)));
 		v = sin(log(pow(1000,v)));
 		v = sin(log(pow(1000,v)));
+        v = abs(v);
+        printf("%f\n",v);
 		bin = -1;
 		if (v<lo) {
 			bin=-1;
@@ -60,6 +63,7 @@ __global__ void binning1d(float *vals, int num_vals_to_bin, float lo, float hi, 
 		v = sin(log(pow(1000,v)));
 		v = sin(log(pow(1000,v)));
 		v = sin(log(pow(1000,v)));
+        v = abs(v);
 		bin = -1;
 		if (v<lo) {
 			bin=-1;
@@ -162,7 +166,7 @@ int main(int argc, char *argv[]) {
 		// A lot of time is spent generating random numbers.
 
 		// DEBUG PRINT
-		//printf("This point: %lu %f\n",count,values_to_be_histogrammed[count_for_histogramming]);
+		printf("This point: %lu %f\n",count,values_to_be_histogrammed[count_for_histogramming]);
 
 		// Keep track of this by hand
 		count_for_histogramming++;
