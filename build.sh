@@ -1,4 +1,5 @@
-NVCC=/usr/local/cuda-11/bin/nvcc
+#NVCC=/usr/local/cuda-11/bin/nvcc
+NVCC=/usr/bin/nvcc
 
 $NVCC hello_world.cu -o hello_world
 $NVCC vector_add.cu -o vector_add
