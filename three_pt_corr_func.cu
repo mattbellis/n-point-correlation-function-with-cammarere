@@ -10,38 +10,55 @@
 #define FLOAT_RAND_MAX (float)RAND_MAX
 
 /////////////////////////////////////////////////////////////
-void binning3d_CPU(float *x0, float *y0, float *z0,  int num_vals_to_bin, float lo, float hi, int nbins, float binwidth, int *bin_indices) {
+void binning3d_CPU(float *x0, float *y0, float *z0,  int yidx, int znum_vals, float lo, float hi, int nbins, float binwidth, int *bin_indices2, int *bin_indices3) {
 
 	int bin = -1;
-	float v;
+	//float d1, d2, d3;
+	float d2, d3;
 
 	// The user has to make sure that filled_bins has enough memory allocated
 	// for nbins integers
 
-	for (int idx = 0; idx<num_vals_to_bin; idx++ ) {
+	for (int idx = 0; idx<znum_vals; idx++ ) {
 
-		v = vals[idx];
-		//v = sin(log(pow(1000,v)));
-		//v = sin(log(pow(1000,v)));
-		//v = sin(log(pow(1000,v)));
-		//v = sin(log(pow(1000,v)));
-        //v = abs(v);
+		x = x0[0];
+		y = y0[yidx];
+		z = z0[idx];
+
+        // We can do the first distance (with x and y) outside of the function call since it won't change.
+        //d1 = sqrt(x*x + y*y);
+        d2 = sqrt(y*y + z*z);
+        d3 = sqrt(x*x + z*z);
 
 		// DEBUG PRINT
         //printf("%f\n",v);
 
 		bin = -1;
-		if (v<lo) {
+		if (d2<lo) {
 			bin=-1;
 		}
-		else if (v>hi) {
+		else if (d2>hi) {
 			bin = -999;
 		}
 		else {
-			bin = (int)((v-lo)/binwidth);
+			bin = (int)((d2-lo)/binwidth);
 		}   
 		//bin = idx; // for DEBUGGING
-		bin_indices[idx] = bin;
+		bin_indices2[idx] = bin;
+
+
+		bin = -1;
+		if (d3<lo) {
+			bin=-1;
+		}
+		else if (d3>hi) {
+			bin = -999;
+		}
+		else {
+			bin = (int)((d3-lo)/binwidth);
+		}   
+		//bin = idx; // for DEBUGGING
+		bin_indices3[idx] = bin;
 	}
 
 	// bin_indices is a pointer so the values in it will 
